@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.3.32811.315
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BingoGame.Client", "BingoGame\BingoGame.Client.csproj", "{BDC3C23A-92BA-48A1-B346-0006AF40A37B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BingoGame.Client", "BingoGame.Client\BingoGame.Client.csproj", "{BDC3C23A-92BA-48A1-B346-0006AF40A37B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BingoGame.Core", "BingoGame.Core\BingoGame.Core.csproj", "{CE75744D-87CE-4AC9-A508-C6A708E230D0}"
 EndProject

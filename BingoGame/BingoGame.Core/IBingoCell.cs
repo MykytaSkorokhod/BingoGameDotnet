@@ -4,9 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BingoGame.Client.Output
+namespace BingoGame.Core
 {
-    internal class BingoBoard
+    public interface IBingoCell
     {
+        int Value { get; }
+        bool IsMatched { get; }
     }
 }

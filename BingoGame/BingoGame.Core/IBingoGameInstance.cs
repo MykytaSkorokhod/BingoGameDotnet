@@ -8,5 +8,12 @@ namespace BingoGame.Core
 {
     public interface IBingoGameInstance
     {
+        IEnumerable<int> ReleasedNumbers { get; }
+        IEnumerable<IBingoTable> ReleasedTables { get; }
+        IBingoTable CreateTable();
+        int ReleaseNewNumber();
+        event Action<int> NumberReleasedEvent;
+        bool IsGameStarted { get; }
+        void StartGame();
     }
 }
