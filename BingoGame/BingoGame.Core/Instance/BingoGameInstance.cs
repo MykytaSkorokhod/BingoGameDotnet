@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BingoGame.Core.Utils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,16 +15,17 @@ namespace BingoGame.Core.Instance
         List<BingoTable> _releasedTables = new List<BingoTable>();
         int _tableColCount;
         int _tableRowCount;
-        bool _gameStarted = false;
+        bool _isGameOngoing = false;
+        List<WinStrategy> _winStrategies = new List<WinStrategy>();
 
         #region API
 
         public void StartGame()
         {
-            _gameStarted = true;
+            _isGameOngoing = true;
         }
 
-        public bool IsGameStarted => _gameStarted;
+        public bool IsGameOngoing => _isGameOngoing;
 
         public IEnumerable<int> ReleasedNumbers => _releasedNumbers;
 
@@ -39,6 +41,9 @@ namespace BingoGame.Core.Instance
         {
             var number = GenerateNumber(_allowedNumbers);
 
+            _releasedNumbers.Add(number);
+            _allowedNumbers.Remove(number);
+
             foreach (var table in _releasedTables)
             {
                 for (int c = 0; c < _tableColCount; c++)
@@ -51,12 +56,40 @@ namespace BingoGame.Core.Instance
                         }
                     }
                 }
+
+                table.NewNumber(number);
+
+                foreach (var winStrat in _winStrategies)
+                {
+                    if (winStrat == WinStrategy.Horizontal)
+                    {
+                        if (MatrixUtils.AllBySecondDimention(table.Matrix, (x) => x.IsMatched))
+                            table.IsTableSolved = true;
+                    }
+                    if (winStrat == WinStrategy.Vertical)
+                    {
+                        if (MatrixUtils.AllByFirstDimention(table.Matrix, (x) => x.IsMatched))
+                            table.IsTableSolved = true;
+                    }
+                    if (winStrat == WinStrategy.Diagonal)
+                    {
+                        if (MatrixUtils.AllByDiagonals(table.Matrix, (x) => x.IsMatched))
+                            table.IsTableSolved = true;
+                    }
+                    if (winStrat == WinStrategy.Whole)
+                    {
+                        if (MatrixUtils.All(table.Matrix, (x) => x.IsMatched))
+                            table.IsTableSolved = true;
+                    }
+
+                    if (table.IsTableSolved)
+                    {
+                        _isGameOngoing = false;
+                        break;
+                    }
+                }
             }
 
-            _releasedNumbers.Add(number);
-            _allowedNumbers.Remove(number);
-
-            _gameStarted = true;
             NumberReleasedEvent?.Invoke(number);
 
             return number;
@@ -65,7 +98,7 @@ namespace BingoGame.Core.Instance
 
         public IBingoTable CreateTable()
         {
-            if (_gameStarted)
+            if (_isGameOngoing)
                 throw new Exception("Game already started");
 
             var table = new BingoTable(this);
@@ -107,11 +140,19 @@ namespace BingoGame.Core.Instance
             _tableRowCount = row;
         }
 
+        internal void SetWinConditions(IEnumerable<WinStrategy> winStrategies)
+        {
+            _winStrategies = winStrategies.Distinct().ToList();
+        }
+
         internal Func<IEnumerable<int>, int> NumberGenerator => _numberGenerator;
         internal (int col, int row) TableMeasure => (_tableColCount, _tableRowCount);
 
         internal int GenerateNumber(List<int> allowedNumbers)
         {
+            if (_allowedNumbers.Count == 0)
+                throw new Exception("Cannot generate new number when we not have allowed numbers");
+
             var number = _numberGenerator?.Invoke(allowedNumbers);
 
             if (!number.HasValue)

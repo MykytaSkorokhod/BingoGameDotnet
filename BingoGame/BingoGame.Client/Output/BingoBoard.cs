@@ -1,4 +1,5 @@
 ﻿using BingoGame.Client.ConsoleUI;
+using BingoGame.Client.Resources;
 using BingoGame.Client.Utils;
 using BingoGame.Core;
 using ConsoleTables;
@@ -13,39 +14,74 @@ namespace BingoGame.Client.Output
     internal class BingoBoard
     {
         const string pressKeyToContinue = "Press Enter to roll new number";
+        Action _iterationCallBack;
 
-        IBingoGameInstance _gameInstance;
         IBingoTable _bingoTable;
 
-        public BingoBoard(IBingoGameInstance gameInstance)
+        public BingoBoard(IBingoTable bingoTable, Action iterationCallBack)
         {
-            _gameInstance = gameInstance;
-            _bingoTable = gameInstance.CreateTable();
+            _bingoTable = bingoTable;
+            _iterationCallBack = iterationCallBack;
 
-            _gameInstance.NumberReleasedEvent += NumberReleasedCallBack;
-            _bingoTable.NumberMatchEvent += NumberMatchCallback;
-            _bingoTable.AllNumbersMatchedEvent += AllNumbersMatchedCallback;
+            _bingoTable.NewNumberEvent += NumberReleasedCallBack;
+        }
 
-            UpdateFrame();
-            _gameInstance.StartGame();
+        #region API
+
+        public void Run()
+        {
+            WriteTableFrame();
 
             while (_bingoTable.IsTableInGame)
             {
                 Console.ReadLine();
-                _gameInstance.ReleaseNewNumber();
+                _iterationCallBack?.Invoke();
             }
-        }
 
-        #region API
+            if (_bingoTable.IsTableSolved)
+                WriteWinGameMessage();
+            else
+                WriteLostGameMessage();
+        }
 
         #endregion
 
         #region UI
 
-        void UpdateFrame()
+        void WriteTableFrame()
         {
             ConsoleBoardUI.WriteBoardUI(_bingoTable);
             Console.Write($"\n{pressKeyToContinue}");
+        }
+
+        void WriteWinGameMessage()
+        {
+            Console.Write("\n\n");
+            Console.BackgroundColor = ConsoleColor.Green;
+            Console.ForegroundColor = ConsoleColor.Black;
+
+            Console.Write($"{Localization.winGameMessage}");
+
+            Console.BackgroundColor = ConsoleColor.Black;
+            Console.ForegroundColor = ConsoleColor.Gray;
+
+            Console.Write($"\n{Localization.returnToMenuMessage} ");
+            Console.ReadKey();
+        }
+
+        void WriteLostGameMessage()
+        {
+            Console.Write("\n\n");
+            Console.BackgroundColor = ConsoleColor.Red;
+            Console.ForegroundColor = ConsoleColor.White;
+
+            Console.Write($"{Localization.lostGameMessage}");
+
+            Console.BackgroundColor = ConsoleColor.Black;
+            Console.ForegroundColor = ConsoleColor.Gray;
+
+            Console.Write($"\n{Localization.returnToMenuMessage} ");
+            Console.ReadKey();
         }
 
         #endregion
@@ -54,17 +90,7 @@ namespace BingoGame.Client.Output
 
         void NumberReleasedCallBack(int obj)
         {
-            UpdateFrame();
-        }
-
-        void NumberMatchCallback(int obj)
-        {
-
-        }
-
-        void AllNumbersMatchedCallback()
-        {
-
+            WriteTableFrame();
         }
 
         #endregion

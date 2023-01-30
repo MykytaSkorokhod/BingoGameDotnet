@@ -21,6 +21,13 @@ namespace BingoGame.Core
         static IEnumerable<int> DefaultAllowedCollection =>
             CollectionUtils.GetAllowedNumbersFromRange(DefaultAllowedNumbersRange.min, DefaultAllowedNumbersRange.max);
 
+        static List<WinStrategy> DefaultWinCondition = new List<WinStrategy>
+        {
+            WinStrategy.Horizontal,
+            WinStrategy.Vertical,
+            WinStrategy.Diagonal
+        };
+
         public BingoGameOptions()
         {
         }
@@ -73,5 +80,26 @@ namespace BingoGame.Core
                 tableMeasure = value;
             }
         }
+
+        IEnumerable<WinStrategy> winCondition = DefaultWinCondition;
+        public IEnumerable<WinStrategy> WinCondition
+        {
+            get => winCondition;
+            set
+            {
+                if (winCondition == value)
+                    return;
+
+                winCondition = value;
+            }
+        }
+    }
+
+    public enum WinStrategy
+    {
+        Horizontal = 0,
+        Vertical = 1,
+        Diagonal = 2,
+        Whole = 3
     }
 }

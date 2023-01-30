@@ -13,7 +13,7 @@ namespace BingoGame.Core
         IBingoTable CreateTable();
         int ReleaseNewNumber();
         event Action<int> NumberReleasedEvent;
-        bool IsGameStarted { get; }
+        bool IsGameOngoing { get; }
         void StartGame();
     }
 }

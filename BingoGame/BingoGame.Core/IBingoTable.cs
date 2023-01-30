@@ -10,9 +10,11 @@ namespace BingoGame.Core
     {
         IBingoGameInstance GameInstance { get; }
 
-        event Action<int> NumberMatchEvent;
+        //event Action<int> NumberMatchEvent;
+        event Action<int> NewNumberEvent;
         IBingoCell[,] Matrix { get; }
         bool IsTableInGame { get; }
         event Action AllNumbersMatchedEvent;
+        bool IsTableSolved { get; }
     }
 }

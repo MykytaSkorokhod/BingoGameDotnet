@@ -42,10 +42,15 @@ namespace BingoGame.Core.Instance
 
         public IBingoCell[,] Matrix => _matrix;
 
-        public bool IsTableInGame => GameInstance.IsGameStarted;
+        public bool IsTableInGame => GameInstance.IsGameOngoing;
 
         public event Action<int> NumberMatchEvent;
+
+        public event Action<int> NewNumberEvent;
+
         public event Action AllNumbersMatchedEvent;
+
+        public bool IsTableSolved { get; internal set; }
 
         #endregion
 
@@ -55,6 +60,10 @@ namespace BingoGame.Core.Instance
         {
             ((BingoCell)bingoCell).Match();
             NumberMatchEvent?.Invoke(bingoCell.Value);
+        }
+        internal void NewNumber(int number)
+        {
+            NewNumberEvent?.Invoke(number);
         }
 
         #endregion
